@@ -46,8 +46,8 @@ async function GetDataResults(frame) {
   return await frame.$$eval('table.Data tr', rows => {
     return Array.from(rows, row => {
       const columns = row.querySelectorAll('td');
-      //return Array.from(columns, (column,index) => index==0? column.id: column.innerText);
-      return Array.from(columns, column => column.innerText);
+      return Array.from(columns, (column,index) => index==0? column.id: column.innerText.trim());
+      
     });
   });
 }
