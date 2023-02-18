@@ -13,7 +13,6 @@ const puppeteer = require('puppeteer');
     const frame = await elementHandle.contentFrame();
     await waitAndClick(frame,'#ctl00_CPH1_BtnTipoGobierno');
 
-
     //Start exp
     await waitAndClick(frame,'#ctl00_CPH1_RptData_ctl02_TD0 > input[type=radio]');
     await waitAndClick(frame,'#ctl00_CPH1_BtnSubTipoGobierno');
@@ -42,6 +41,7 @@ async function waitAndClick(element,selector) {
 }
 
 async function GetDataResults(frame) {
+  //May fail if this runs before the reload
   await frame.waitForSelector('table.Data tr');
   return await frame.$$eval('table.Data tr', rows => {
     return Array.from(rows, row => {
