@@ -4,49 +4,77 @@ const puppeteer = require('puppeteer');
     const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
+    //Initialize CA("Consulta amigable") page
     await page.goto('https://apps5.mineco.gob.pe/transparencia/Navegador/default.aspx?y=2023&ap=Proyecto');
-
-    // Set screen size
     await page.setViewport({ width: 1080, height: 1024 });
 
-
-
-    const elementHandle = await page.$(
-        '#frame0',
-    );
+    //Get the iframe CA uses for internal data
+    const elementHandle = await page.$('#frame0');
     const frame = await elementHandle.contentFrame();
-    // Wait and click on first result
-    const searchResultSelector = '#ctl00_CPH1_BtnTipoGobierno';
-    await frame.click(searchResultSelector);
+    await waitAndClick(frame,'#ctl00_CPH1_BtnTipoGobierno');
 
-    // Locate the full title with a unique string
-    const firstRadio = await frame.waitForSelector('#ctl00_CPH1_RptData_ctl02_TD0 > input[type=radio]');
-    await frame.click('#ctl00_CPH1_RptData_ctl02_TD0 > input[type=radio]');
-    const gobmanc = await frame.waitForSelector('#ctl00_CPH1_BtnSubTipoGobierno');
-    await frame.click('#ctl00_CPH1_BtnSubTipoGobierno');
-    //let v = await frame.$eval('#ctl00_CPH1_BtnSector', element=> element.getAttribute("value"))
-    await frame.waitForSelector('#ctl00_CPH1_BtnMancomunidad');
 
-    const result = await page.$$eval('table.Data tr', rows => {
-        return Array.from(rows, row => {
-          const columns = row.querySelectorAll('td');
-          return Array.from(columns, column => column.innerText);
-        });
-      });
-      
-      console.log(result); // "C2"
-      
-    //console.log(v);
-    const screenShot = await page.screenshot({
+    //Start exp
+    await waitAndClick(frame,'#ctl00_CPH1_RptData_ctl02_TD0 > input[type=radio]');
+    await waitAndClick(frame,'#ctl00_CPH1_BtnSubTipoGobierno');
+
+    
+
+    const result = await GetDataResults(frame);
+    const table = new TableResult(result);
+    console.log(table); 
+    //console.log(table.options); 
+    
+    
+    //Screenshot of last place for reference
+    await page.screenshot({
         path: "./test.png",
         type: "png",
         fullPage: true
     })
 
-    //const fullTitle = await textSelector.evaluate(el => el.textContent);
-
-    // Print the full title
-    console.log('Lets see....');
-
     await browser.close();
 })();
+
+async function waitAndClick(element,selector) {
+  await element.waitForSelector(selector);
+  await element.click(selector);
+}
+
+async function GetDataResults(frame) {
+  await frame.waitForSelector('table.Data tr');
+  return await frame.$$eval('table.Data tr', rows => {
+    return Array.from(rows, row => {
+      const columns = row.querySelectorAll('td');
+      //return Array.from(columns, (column,index) => index==0? column.id: column.innerText);
+      return Array.from(columns, column => column.innerText);
+    });
+  });
+}
+
+class RowResult {
+  constructor(row) {
+    this.id   = row[0];
+    this.name = row[1];
+    this.pia  = row[2];
+    this.pim  = row[3];
+    this.cert = row[4];
+    this.comp = row[5];
+    this.atco = row[6];
+    this.devn = row[7];
+    this.gira = row[8];
+    this.avan = row[9];
+  }
+}
+class TableResult {
+
+  constructor(table) {
+    this.rows = [];
+    table.forEach(row => {
+      this.rows.push(new RowResult(row));
+    });
+  }
+  get options(){
+    return this.rows.map(function(v){ return v.name; });
+  }
+}
