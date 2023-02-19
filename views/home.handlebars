@@ -1,0 +1,39 @@
+<div class="content">
+    <h1>{{title}}</h1>
+
+    <div class="input-group mb-3">
+        <label class="input-group-text" for="options">Opciones</label>
+        <select class="form-select" disabled id="options" onchange="getOptions()">
+            <option value="" selected>Cargando...</option>
+        </select>
+    </div>
+</div>
+
+<script>
+    var path = [];
+    function getOptions() {
+
+        let selectControl = document.getElementById("options");
+        const added = selectControl.value;
+        if (added)
+            path.push(added);
+        selectControl.disabled = "disabled"
+        selectControl.innerHTML = `<option value="" selected>Cargando...</option>`;
+
+        fetch(`remi?path=${path.join()}`)
+            .then((response) => response.json())
+            .then((data) => {
+                selectControl.innerHTML = `<option value="" selected>[[ -- Seleccione -- ]]</option>`;
+                for (i in data) {
+                    const value = data[i];
+                    const option = document.createElement("option");
+                    option.text = value;
+                    option.value = value;
+                    selectControl.add(option);
+                }
+                selectControl.removeAttribute("disabled");
+            });
+    }
+
+    getOptions();
+</script>
