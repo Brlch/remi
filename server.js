@@ -16,7 +16,8 @@ app.get('/', function (req, res) {
 
 app.get('/remi', async function (req, res) {
     console.log(`Path ${req.query.path} was requested...`);
-    res.json(await remi.startRemi((req.query.path ?? "").split().filter(i => i)));
+    const table = await remi.startRemi((req.query.path ?? "").split().filter(i => i));
+    res.json(table.rows);
 });
 
 //Public files

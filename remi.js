@@ -2,7 +2,10 @@
 const puppeteer = require('puppeteer');
 
 async function startRemi(optionsPath = []) {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    args: ['--no-sandbox'],
+    timeout: 10000,
+  });
   const page = await browser.newPage();
 
   //Initialize CA("Consulta amigable") page
@@ -40,7 +43,7 @@ async function startRemi(optionsPath = []) {
   // close browser and return the options
   table = await GetDataResults(frame);
   await browser.close();
-  return table.options;
+  return table;
 
 }
 

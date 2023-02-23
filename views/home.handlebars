@@ -7,29 +7,85 @@
             <option value="" selected>Cargando...</option>
         </select>
     </div>
+
+    <h2>Results</h2>
+    <table class="table table-hover table-stripped">
+        <thead>
+            <tr>
+                <th>Opción</th>
+                <th>PIA</th>
+                <th>PIM</th>
+                <th>Certificación</th>
+                <th>Compromiso Anual</th>
+                <th>Atención de compromiso mensual</th>
+                <th>Devengado</th>
+                <th>Girado</th>
+                <th>Avance</th>
+            </tr>
+        </thead>
+        <tbody id="table-data">
+
+        </tbody>
+    </table>
 </div>
 
 <script>
     var path = [];
-    function getOptions() {
+    function getOptions(selected = "") {
 
+        //Prepare select
         let selectControl = document.getElementById("options");
-        const added = selectControl.value;
+        const added = selected || selectControl.value;
         if (added)
             path.push(added);
         selectControl.disabled = "disabled"
         selectControl.innerHTML = `<option value="" selected>Cargando...</option>`;
 
+        //Prepare table
+        let tableControl = document.getElementById("table-data");
+        tableControl.innerHTML = "<tr><td colspan='9'>Cargando...</td></tr>";
+
         fetch(`remi?path=${path.join()}`)
             .then((response) => response.json())
             .then((data) => {
+                console.log(data);
                 selectControl.innerHTML = `<option value="" selected>[[ -- Seleccione -- ]]</option>`;
+                tableControl.innerHTML = ``;
                 for (i in data) {
-                    const value = data[i];
+                    const value = data[i].name;
+
+                    //Add option to the select
                     const option = document.createElement("option");
                     option.text = value;
                     option.value = value;
                     selectControl.add(option);
+
+                    //Add row to the table
+                    const row = tableControl.insertRow(-1);
+                    row.onclick = function() {
+                        getOptions(data[i].name);
+                    };
+                    let name = row.insertCell(-1);
+                    let pia = row.insertCell(-1);
+                    let pim = row.insertCell(-1);
+                    let cert = row.insertCell(-1);
+                    let comp = row.insertCell(-1);
+                    let atco = row.insertCell(-1);
+                    let devn = row.insertCell(-1);
+                    let gira = row.insertCell(-1);
+                    let avan = row.insertCell(-1);
+
+                    //Add data to the cells
+                    name.innerHTML = data[i].name;
+                    pia.innerHTML = data[i].pia;
+                    pim.innerHTML = data[i].pim;
+                    cert.innerHTML = data[i].cert;
+                    comp.innerHTML = data[i].comp;
+                    atco.innerHTML = data[i].atco;
+                    devn.innerHTML = data[i].devn;
+                    gira.innerHTML = data[i].gira;
+                    avan.innerHTML = data[i].avan;
+
                 }
                 selectControl.removeAttribute("disabled");
             });
