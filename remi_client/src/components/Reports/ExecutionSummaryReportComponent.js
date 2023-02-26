@@ -1,6 +1,6 @@
 import React from 'react';
 import { PieChart, Pie, Cell, Legend } from 'recharts';
-import '../../styles/css/styles.css'; // Import the CSS file
+import '../../styles/css/styles.css'; 
 
 function ExecutionSummaryReportComponent({ data }) {
 
