@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer');
 
 async function startRemi(optionsPath = []) {
   const browser = await puppeteer.launch({
-    args: ['--no-sandbox'],
+    //args: ['--no-sandbox'],
     timeout: 10000,
   });
   const page = await browser.newPage();
@@ -23,23 +23,30 @@ async function startRemi(optionsPath = []) {
   let table = null;
 
   // follow the path
-  const promises = optionsPath.map(async element => {
-    table = await GetDataResults(frame);
-    const row = table.rows.find(x => x.name == element);
-    
-    // select path
-    await waitAndClick(frame, `#${row.id} > input[type=radio]`);
-    
-    // select button
-    await waitAndClick(frame, '#ctl00_CPH1_BtnSubTipoGobierno');
-    await waitCALoading(frame);
-    
-    frame = await getNewFrame(page, frame);
-  });
+  const promises = [];
+  for (const element of optionsPath) {
+    await Promise.all(promises);
+
+    console.log("ELEMENT", element);
+    if (element.includes("_Btn")) {
+      // select button
+      promises.push(waitAndClick(frame, `#${element}`));
+      promises.push(waitCALoading(frame));
+      promises.push(getNewFrame(page, frame).then(newFrame => frame = newFrame));
+    } else {
+      table = await GetDataResults(frame);
+      const row = table.rows.find(x => x.name == element);
+
+      // select path
+      promises.push(waitAndClick(frame, `#${row.id} > input[type=radio]`));
+    }
+  }
+
 
   // wait for all steps to execute
   await Promise.all(promises);
 
+  screenshot(page, "afterAll");
   // close browser and return the options
   table = await GetDataResults(frame);
   await browser.close();
@@ -67,6 +74,7 @@ async function waitCALoading(frame) {
 }
 
 async function waitAndClick(element, selector) {
+  console.log("Searching for:", selector);
   const selectedToClick = await element.waitForSelector(selector);
   try {
     await selectedToClick.evaluate(b => b.click());
@@ -85,7 +93,15 @@ async function GetDataResults(frame) {
 
     });
   });
-  return new TableResult(result);
+  const buttonsObj = await frame.$x('.//*[contains(@id,"_Btn") and not(contains(@style, "display: none"))]');
+  let buttons = [];
+  for (let i = 0; i < buttonsObj.length; i++) {
+    const btn = await buttonsObj[i].evaluate(objEval => ({
+      id: objEval.id, text: objEval.value
+    }));
+    buttons.push(btn);
+  }
+  return new TableResult(result, buttons);
 
 }
 
@@ -105,11 +121,13 @@ class RowResult {
 }
 class TableResult {
 
-  constructor(table) {
+  constructor(table, buttons) {
     this.rows = [];
+    this.buttons = buttons;
     table.forEach(row => {
       this.rows.push(new RowResult(row));
     });
+
   }
   get options() {
     return this.rows.map(function (v) { return v.name; });
