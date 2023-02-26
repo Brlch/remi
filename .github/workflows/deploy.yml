@@ -5,8 +5,8 @@ on:
     branches: [main]
 
 env:
-  REMI_CLIENT_PATH: /var/www/remi/remi_client
-  REMI_SERVER_PATH: /var/www/remi/remi_server
+  REMI_CLIENT_PATH: /var/www/remi.gobconsult.com/remi_client
+  REMI_SERVER_PATH: /var/www/remi.gobconsult.com/remi_server
 
 jobs:
   deploy:
