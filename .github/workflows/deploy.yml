@@ -2,7 +2,8 @@ name: Deploy projects to Digital Ocean
 
 on:
   push:
-    branches: [main]
+    branches: [main,development]
+    #branches: [main]
 
 env:  
   LOCAL_REMI_CLIENT_PATH: remi_client
@@ -20,8 +21,9 @@ jobs:
 
     - name: Install dependencies
       run: |
+        ls
         cd $LOCAL_REMI_CLIENT_PATH && npm install
-        cd $LOCAL_REMI_SERVER_PATH && npm install
+        cd ../$LOCAL_REMI_SERVER_PATH && npm install
 
     - name: Build client project
       run: |
