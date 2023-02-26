@@ -1,0 +1,47 @@
+name: Deploy projects to Digital Ocean
+
+on:
+  push:
+    branches: [main]
+
+env:
+  REMI_CLIENT_PATH: /var/www/remi/remi_client
+  REMI_SERVER_PATH: /var/www/remi/remi_server
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        cd $REMI_CLIENT_PATH && npm install
+        cd $REMI_SERVER_PATH && npm install
+
+    - name: Build client project
+      run: |
+        cd $REMI_CLIENT_PATH && npm run build
+
+    - name: Restart server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          pm2 stop remi_server || true
+          rm -rf $REMI_SERVER_PATH/*
+          cp -r $GITHUB_WORKSPACE/remi_server/* $REMI_SERVER_PATH/
+          cd $REMI_SERVER_PATH && pm2 start app.js
+
+    - name: Deploy client project
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: $GITHUB_WORKSPACE/remi_client/build/
+        target: $REMI_CLIENT_PATH/public/
