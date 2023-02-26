@@ -22,12 +22,14 @@ jobs:
     - name: Install dependencies
       run: |
         ls
-        cd $LOCAL_REMI_CLIENT_PATH && npm install
-        cd ../$LOCAL_REMI_SERVER_PATH && npm install
+        echo "Current directory: $(pwd)"
+        echo "$GITHUB_WORKSPACE"
+        cd $GITHUB_WORKSPACE/$LOCAL_REMI_CLIENT_PATH && npm install
+        cd $GITHUB_WORKSPACE/$LOCAL_REMI_SERVER_PATH && npm install
 
     - name: Build client project
       run: |
-        cd $REMI_CLIENT_PATH && npm run build
+        cd $GITHUB_WORKSPACE/$LOCAL_REMI_CLIENT_PATH && npm run build
 
     - name: Restart server
       uses: appleboy/ssh-action@master
