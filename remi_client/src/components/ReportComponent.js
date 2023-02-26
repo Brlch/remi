@@ -21,13 +21,13 @@ function ReportComponent() {
     useEffect(() => {
         if (data && data.rows)
             setEntityData(data.rows.filter(x => x.name === path.at(-1)));
-    }, [data]);
+    }, [data,path]);
 
     return (
         <>
             <div>
                 <br></br>
-                Reporte para {path}
+                Reporte para {path.at(-1)}
                 <br></br>
                 <ExecutionSummaryReportComponent data={entityData}></ExecutionSummaryReportComponent>
             </div>
