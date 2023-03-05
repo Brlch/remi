@@ -10,28 +10,38 @@ function ReportComponent() {
     const { path } = location.state || [];
 
 
-    // Declare a new state variable, which we'll call "count"
+    const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState([]);
     const [entityData, setEntityData] = useState(null)
 
     useEffect(() => {
         if (path)
-            getRemiPath(path, setData);
+            getRemiPath(path, setData,setIsLoading);
     }, [path]);
     useEffect(() => {
         if (data && data.rows)
             setEntityData(data.rows.filter(x => x.name === path.at(-1)));
-    }, [data,path]);
+    }, [data, path]);
+    useEffect(() => {
+        if (entityData)
+            setIsLoading(false);
+    }, [entityData]);
 
     return (
         <>
-            <div>
-                <br></br>
-                Reporte para {path.at(-1)}
-                <br></br>
-                <ExecutionSummaryReportComponent data={entityData}></ExecutionSummaryReportComponent>
-            </div>
+            <>{isLoading && <div>Cargando...</div>}</>
+            <>
+                {!isLoading &&
+                    <div>
+                        <br></br>
+                        Reporte para {path.at(-1)}
+                        <br></br>
+                        <ExecutionSummaryReportComponent data={entityData}></ExecutionSummaryReportComponent>
+                    </div>
 
+
+                }
+            </>
         </>
     );
 }

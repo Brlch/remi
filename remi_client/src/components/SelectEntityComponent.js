@@ -8,11 +8,13 @@ function SelectEntityComponent() {
   const navigate = useNavigate();
 
   // Declare a new state variable, which we'll call "count"
+  const [isLoading, setIsLoading] = useState(true);
   const [path, setPath] = useState([]);
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    getRemiPath(path,setData);
+    setIsLoading(true);
+    getRemiPath(path,setData,setIsLoading);
   }, [path]);
 
   const addToPath = (addedPath) => {
@@ -23,13 +25,10 @@ function SelectEntityComponent() {
     navigate('/report', { state: { path: [...path, entityPath] } });
   };
 
-  useEffect(() => {
-    console.log("Latest data", data);
-  }, [data]);
-
   return (
     <>
-      {data && <ResultsComponent data={data} action={addToPath} path={path} select={selectEntity}></ResultsComponent>}
+      <>{isLoading && <div>Cargando...</div>}</>
+      {(!isLoading && data) && <ResultsComponent data={data} action={addToPath} path={path} select={selectEntity}></ResultsComponent>}
     </>
   );
 }
