@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 
 import { useLocation } from 'react-router-dom';
 import { getRemiPath } from '../utils/RemiConsumer';
+import ExecutionPiaPimReportComponent from './Reports/ExecutionPiaPimReportComponent';
 import ExecutionSummaryReportComponent from './Reports/ExecutionSummaryReportComponent';
+import ResultsComponent from './ResultsComponent';
+
 
 function ReportComponent() {
 
@@ -12,32 +15,30 @@ function ReportComponent() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [data, setData] = useState([]);
-    const [entityData, setEntityData] = useState(null)
 
     useEffect(() => {
         if (path)
-            getRemiPath(path, setData,setIsLoading);
+            getRemiPath(path, setData, setIsLoading);
     }, [path]);
-    useEffect(() => {
-        if (data && data.rows)
-            setEntityData(data.rows.filter(x => x.name === path.at(-1)));
-    }, [data, path]);
-    useEffect(() => {
-        if (entityData)
-            setIsLoading(false);
-    }, [entityData]);
 
     return (
         <>
             <>{isLoading && <div>Cargando...</div>}</>
             <>
                 {!isLoading &&
-                    <div>
-                        <br></br>
-                        Reporte para {path.at(-1)}
-                        <br></br>
-                        <ExecutionSummaryReportComponent data={entityData}></ExecutionSummaryReportComponent>
-                    </div>
+                    <>
+                        <div>
+                            <br></br>
+                            Reporte para {path.at(-2)}
+                            <br></br>
+                        </div>
+                        <ExecutionSummaryReportComponent data={data}></ExecutionSummaryReportComponent>
+
+                        <ExecutionPiaPimReportComponent data={data}></ExecutionPiaPimReportComponent>
+
+                        <ResultsComponent data={data} action={null} path={path} select={null} enabledProy={false} buttonsVisible={false}></ResultsComponent>
+                    </>
+
 
 
                 }

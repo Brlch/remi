@@ -1,0 +1,1 @@
+pm2 start /var/www/remi.gobconsult.com/remi_server/bin/www --name remi_server

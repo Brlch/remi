@@ -8,10 +8,9 @@ export function getRemiPath(path, setterFunction, setLoading) {
   fetch(`${API_BASE_URL}?path=${path.join('/')}`)
     .then(response => response.json())
     .then(data => {
-      console.log("DATA BEFORE:", data);
       if (data && data.rows) {
         data.rows = convertPropsToNumbers(data.rows);
-        console.log("Converted:", convertPropsToNumbers(data.rows));
+        data.rows = data.rows.filter(x=>x.id);
       }
       if (setLoading)
         setLoading(false);
@@ -32,4 +31,10 @@ function convertPropsToNumbers(arr) {
     }
     return newObj;
   });
+}
+
+export function toFormat(number){
+  if(number && number.toLocaleString)
+    return number.toLocaleString();
+  return number;
 }

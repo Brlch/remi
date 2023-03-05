@@ -2,7 +2,7 @@ name: Deploy projects to Digital Ocean
 
 on:
   push:
-    branches: [main,development]
+    branches: [main]
     #branches: [main]
 
 env:  
@@ -38,6 +38,7 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
+          set -e
           pm2 stop remi_server || true
           rm -rf $DROPLET_REMI_SERVER_PATH/*
           cp -r $GITHUB_WORKSPACE/remi_server/* $DROPLET_REMI_SERVER_PATH/

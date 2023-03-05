@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from 'reactstrap';
 import '../styles/css/styles.css'; // Import the CSS file
+import { toFormat } from '../utils/RemiConsumer';
 
-function ResultsComponent({ data, action, path, select }) {
+function ResultsComponent({ data, action, path, select, enabledProy, buttonsVisible }) {
+
   const [tableRows, setTableRows] = useState([]);
   const [tableButtons, setTableButtons] = useState([]);
   const [choosingRow, setChoosingRow] = useState(true);
@@ -25,25 +27,29 @@ function ResultsComponent({ data, action, path, select }) {
         data={tableButtons}
         action={action}
         enabled={!choosingRow}
+        buttonsVisible={buttonsVisible}
       />
       <ResultsTableComponent
         data={tableRows}
         action={action}
         enabled={choosingRow}
         select={select}
+        enabledProy={enabledProy}
+        buttonsVisible={buttonsVisible}
+
       />
     </>
   );
 }
 
-function ResultsTableComponent({ data, action, enabled, select }) {
-  console.log("TABLE", data);
+function ResultsTableComponent({ data, action, enabled, select, enabledProy, buttonsVisible }) {
+
   return !data ? <></> : (
     <div>
       <table className='table table-hover table-stripped'>
         <thead>
           <tr>
-            <th>Opción</th>
+            <th>{(buttonsVisible?"Opción":"Proyecto")}</th>
             <th>PIA</th>
             <th>PIM</th>
             <th>Certificación</th>
@@ -59,15 +65,16 @@ function ResultsTableComponent({ data, action, enabled, select }) {
           {data.map(item => (
             <tr key={item.name} onClick={() => action(item.name)} disabled={!enabled} className={enabled ? "table-row-enabled" : "table-row-disabled"}>
               <td>{item.name}</td>
-              <td>{item.pia}</td>
-              <td>{item.pim}</td>
-              <td>{item.cert}</td>
-              <td>{item.comp}</td>
-              <td>{item.atco}</td>
-              <td>{item.devn}</td>
-              <td>{item.gira}</td>
-              <td>{item.avan}</td>
-              <td> {enabled && <Button onClick={() => { select(item.name) }}>Reporte</Button>}
+              <td>{toFormat(item.pia)}</td>
+              <td>{toFormat(item.pim)}</td>
+              <td>{toFormat(item.cert)}</td>
+              <td>{toFormat(item.comp)}</td>
+              <td>{toFormat(item.atco)}</td>
+              <td>{toFormat(item.devn)}</td>
+              <td>{toFormat(item.gira)}</td>
+              <td>{item.avan}%</td>
+              <td>
+                {enabledProy && <Button onClick={() => { select(item.name) }}>Reporte</Button>}
               </td>
             </tr>
           ))}
@@ -78,9 +85,9 @@ function ResultsTableComponent({ data, action, enabled, select }) {
   );
 }
 
-function ResultsButtonsComponent({ data, action, enabled }) {
+function ResultsButtonsComponent({ data, action, enabled, buttonsVisible }) {
 
-  return !data ? <></> : (
+  return (!data || !buttonsVisible) ? <></> : (
     <div className="d-flex justify-content-between">
       {data.map(item => (
         <Button key={item.id} onClick={() => action(item.id)} disabled={!enabled}>{item.text}</Button>
