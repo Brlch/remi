@@ -47,6 +47,10 @@ jobs:
     #      rsync -avz --delete --exclude '.env' --exclude 'node_modules' $GITHUB_WORKSPACE/remi_server/ $DROPLET_REMI_SERVER_PATH/
     #      cd $DROPLET_REMI_SERVER_PATH && npm install && pm2 start bin/www --name remi_server
 
+    - name: Rsync client project
+      run: |
+        rsync -avz --delete --exclude 'node_modules' --exclude '.env' ${{ github.workspace }}/remi_client/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$DROPLET_REMI_CLIENT_PATH/
+
     - name: Deploy and build client project
       uses: appleboy/ssh-action@master
       with:
@@ -58,14 +62,6 @@ jobs:
         script: |
           echo "GITHUB_WORKSPACE: ${{ github.workspace }}"
           echo "DROPLET_REMI_CLIENT_PATH: $DROPLET_REMI_CLIENT_PATH"
-          echo "root ech:"
-          ls -la
-          echo "root ech:"
-          pwd
-          cd /home
-          ls -la
-          echo "root ech:"
-          cd /runner
-          ls -la
-          rsync -avz --delete --exclude 'node_modules' --exclude '.env' ${{ github.workspace }}/remi_client/ $DROPLET_REMI_CLIENT_PATH/
-#          cd $DROPLET_REMI_CLIENT_PATH && npm install && npm run build
+          echo "Listing contents of source directory:"
+          ls -la $DROPLET_REMI_CLIENT_PATH/
+          cd $DROPLET_REMI_CLIENT_PATH && npm install && npm run build
