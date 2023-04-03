@@ -18,18 +18,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install dependencies
-      run: |
-        ls
-        echo "Current directory: $(pwd)"
-        echo "$GITHUB_WORKSPACE"
-        cd $GITHUB_WORKSPACE/$LOCAL_REMI_CLIENT_PATH && npm install
-        cd $GITHUB_WORKSPACE/$LOCAL_REMI_SERVER_PATH && npm install
-
-    - name: Build client project
-      run: |
-        cd $GITHUB_WORKSPACE/$LOCAL_REMI_CLIENT_PATH && npm run build
-
     - name: Create PM2 instances if not exist
       uses: appleboy/ssh-action@master
       with:
@@ -46,6 +34,43 @@ jobs:
             pm2 start --name remi_server --interpreter node $SERVER_BIN_PATH
           fi
 
+
+
+    - name: Install SSH Key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        known_hosts: 'Nekostore digitalocean'
+    
+    - name: Rsync client project
+      run: |
+        echo "Adding remote host key"
+        ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+        echo "Transferring client project files using rsync"
+        rsync -avz --delete --exclude 'node_modules' --exclude '.env' ${{ github.workspace }}/remi_client/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$DROPLET_REMI_CLIENT_PATH/
+    
+    - name: Deploy and build client project
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        envs: DROPLET_REMI_CLIENT_PATH
+        DROPLET_REMI_CLIENT_PATH: /var/www/remi.gobconsult.com/remi_client
+        script: |
+          echo "GITHUB_WORKSPACE: ${{ github.workspace }}"
+          echo "DROPLET_REMI_CLIENT_PATH: $DROPLET_REMI_CLIENT_PATH"
+          echo "Listing contents of source directory:"
+          ls -la $DROPLET_REMI_CLIENT_PATH/
+          cd $DROPLET_REMI_CLIENT_PATH && npm install && npm run build
+
+    - name: Rsync server project
+    run: |
+      echo "Adding remote host key"
+      ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+      echo "Transferring client project files using rsync"
+      rsync -avz --delete --exclude 'node_modules' --exclude '.env' ${{ github.workspace }}/remi_server/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$DROPLET_REMI_SERVER_PATH/
+
     - name: Deploy and restart server
       uses: appleboy/ssh-action@master
       with:
@@ -56,20 +81,4 @@ jobs:
         DROPLET_REMI_SERVER_PATH: /var/www/remi.gobconsult.com/remi_server
         script: |
           pm2 stop remi_server || true
-          rsync -avz --delete --exclude '.env' --exclude 'node_modules' $GITHUB_WORKSPACE/remi_server/ $DROPLET_REMI_SERVER_PATH/
           cd $DROPLET_REMI_SERVER_PATH && npm install && pm2 start bin/www --name remi_server
-
-    - name: Deploy and build client project
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        envs: DROPLET_REMI_CLIENT_PATH
-        DROPLET_REMI_CLIENT_PATH: /var/www/remi.gobconsult.com/remi_client
-        script: |
-          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
-          echo "DROPLET_REMI_CLIENT_PATH: $DROPLET_REMI_CLIENT_PATH"
-          rsync -avz --delete --exclude 'node_modules' --exclude '.env' $GITHUB_WORKSPACE/remi_client/ $DROPLET_REMI_CLIENT_PATH/
-          cd $DROPLET_REMI_CLIENT_PATH && npm install && npm run build
-
