@@ -60,12 +60,12 @@ jobs:
           echo "DROPLET_REMI_CLIENT_PATH: $DROPLET_REMI_CLIENT_PATH"
           echo "root ech:"
           ls -la
+          echo "root ech:"
           pwd
-          cd ..
+          cd /home
           ls -la
-          echo "Listing contents of source directory:"
-          ls -la ${{ github.workspace }}/remi_client/
-          echo "Listing contents of source directory client:"
-          ls -la ${{ github.workspace }}
+          echo "root ech:"
+          cd /runner
+          ls -la
           rsync -avz --delete --exclude 'node_modules' --exclude '.env' ${{ github.workspace }}/remi_client/ $DROPLET_REMI_CLIENT_PATH/
 #          cd $DROPLET_REMI_CLIENT_PATH && npm install && npm run build
