@@ -60,6 +60,9 @@ jobs:
           echo "DROPLET_REMI_CLIENT_PATH: $DROPLET_REMI_CLIENT_PATH"
           echo "root ech:"
           ls -la
+          pwd
+          cd ..
+          ls -la
           echo "Listing contents of source directory:"
           ls -la ${{ github.workspace }}/remi_client/
           echo "Listing contents of source directory client:"
