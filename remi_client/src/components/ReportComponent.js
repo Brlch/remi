@@ -14,12 +14,43 @@ function ReportComponent() {
 
 
     const [isLoading, setIsLoading] = useState(true);
-    const [data, setData] = useState([]);
+
+    const [pathProjects, setPathProjects] = useState([]);
+    const [dataProjects, setDataProjects] = useState([]);
+
+    const [pathSource, setPathSource] = useState([]);
+    const [dataSource, setDataSource] = useState([]);
+
+    const [pathFunction, setPathFunction] = useState([]);
+    const [dataFunction, setDataFunction] = useState([]);
 
     useEffect(() => {
-        if (path)
-            getRemiPath(path, setData, setIsLoading);
+        if (path) {
+            addToPath(path, setPathProjects,"ctl00_CPH1_BtnProdProy");
+            addToPath(path, setPathSource,"ctl00_CPH1_BtnRubro");
+            addToPath(path, setPathFunction,"ctl00_CPH1_BtnFuncion");
+        }
     }, [path]);
+
+    useEffect(() => {
+        setIsLoading(true);
+        getRemiPath(pathProjects, setDataProjects);
+    }, [pathProjects]);
+    useEffect(() => {
+        setIsLoading(true);
+        getRemiPath(pathSource, setDataSource);
+    }, [pathSource]);
+    useEffect(() => {
+        setIsLoading(true);
+        getRemiPath(pathFunction, setDataFunction);
+    }, [pathFunction]);
+
+
+    useEffect(() => {
+        if(dataProjects && dataSource){
+            setIsLoading(false);
+        }
+    }, [dataProjects,dataSource,dataFunction]);
 
     return (
         <>
@@ -32,11 +63,17 @@ function ReportComponent() {
                             Reporte para {path.at(-2)}
                             <br></br>
                         </div>
-                        <ExecutionSummaryReportComponent data={data}></ExecutionSummaryReportComponent>
+                        <ExecutionSummaryReportComponent data={dataProjects}></ExecutionSummaryReportComponent>
 
-                        <ExecutionPiaPimReportComponent data={data}></ExecutionPiaPimReportComponent>
+                        <ExecutionPiaPimReportComponent data={dataProjects}></ExecutionPiaPimReportComponent>
+                        
+                        <h3>Ingresos para inversiones:</h3> 
+                        <ResultsComponent data={dataSource} action={null} path={path} select={null} enabledProy={false} buttonsVisible={false} label="Rubro"></ResultsComponent>
 
-                        <ResultsComponent data={data} action={null} path={path} select={null} enabledProy={false} buttonsVisible={false}></ResultsComponent>
+                        <h3>Composición del avance de la ejecución presupuestal de inversiones:</h3> 
+                        <ResultsComponent data={dataFunction} action={null} path={path} select={null} enabledProy={false} buttonsVisible={false} label="Función"></ResultsComponent>
+                         
+                        <ResultsComponent data={dataProjects} action={null} path={path} select={null} enabledProy={false} buttonsVisible={false} label="Proyecto"></ResultsComponent>
                     </>
 
 
@@ -45,5 +82,11 @@ function ReportComponent() {
             </>
         </>
     );
-}
+} 
 export default ReportComponent;
+
+function addToPath(path, setPathProjects,btnId) {
+    let _pathProjects = path.slice();
+    _pathProjects.push(btnId);
+    setPathProjects(_pathProjects);
+}

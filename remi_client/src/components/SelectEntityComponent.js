@@ -31,7 +31,7 @@ function SelectEntityComponent() {
   };
 
   const selectEntity = (entityPath) => {
-    navigate('/report', { state: { path: [...path, entityPath,(data.buttons ?? []).filter(x => x.id === "ctl00_CPH1_BtnProdProy")[0].id] } });
+    navigate('/report', { state: { path: [...path, entityPath] } });
   };
 
   return (
