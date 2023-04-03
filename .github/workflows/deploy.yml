@@ -2,7 +2,7 @@ name: Deploy projects to Digital Ocean
 
 on:
   push:
-    branches: [main]
+    branches: [main,development]
 
 env:  
   LOCAL_REMI_CLIENT_PATH: remi_client
@@ -17,18 +17,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
-    - name: Install dependencies
-      run: |
-        ls
-        echo "Current directory: $(pwd)"
-        echo "$GITHUB_WORKSPACE"
-        cd $GITHUB_WORKSPACE/$LOCAL_REMI_CLIENT_PATH && npm install
-        cd $GITHUB_WORKSPACE/$LOCAL_REMI_SERVER_PATH && npm install
-
-    - name: Build client project
-      run: |
-        cd $GITHUB_WORKSPACE/$LOCAL_REMI_CLIENT_PATH && npm run build
 
     - name: Create PM2 instances if not exist
       uses: appleboy/ssh-action@master
