@@ -38,7 +38,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           if ! pm2 describe remi_server >/dev/null 2>&1; then
-            pm2 start --name remi_server --interpreter node $DROPLET_REMI_SERVER_PATH/bin/www
+            pm2 start --name remi_server --interpreter node {{ env.$DROPLET_REMI_SERVER_PATH}}/bin/www
           fi
     - name: Deploy and restart server
       uses: appleboy/ssh-action@master
