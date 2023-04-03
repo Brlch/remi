@@ -2,7 +2,7 @@ name: Deploy projects to Digital Ocean
 
 on:
   push:
-    branches: [main]
+    branches: [main,development]
 
 env:  
   LOCAL_REMI_CLIENT_PATH: remi_client
@@ -68,8 +68,7 @@ jobs:
         envs: DROPLET_REMI_CLIENT_PATH
         DROPLET_REMI_CLIENT_PATH: /var/www/remi.gobconsult.com/remi_client
         script: |
-          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          echo "GITHUB_WORKSPACE: ${{ github.workspace }}"
           echo "DROPLET_REMI_CLIENT_PATH: $DROPLET_REMI_CLIENT_PATH"
-          rsync -avz --delete --exclude 'node_modules' --exclude '.env' $GITHUB_WORKSPACE/remi_client/ $DROPLET_REMI_CLIENT_PATH/
+          rsync -avz --delete --exclude 'node_modules' --exclude '.env' ${{ github.workspace }}/remi_client/ $DROPLET_REMI_CLIENT_PATH/
           cd $DROPLET_REMI_CLIENT_PATH && npm install && npm run build
-
