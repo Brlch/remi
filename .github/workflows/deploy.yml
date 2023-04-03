@@ -65,11 +65,11 @@ jobs:
           cd $DROPLET_REMI_CLIENT_PATH && npm install && npm run build
 
     - name: Rsync server project
-    run: |
-      echo "Adding remote host key"
-      ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-      echo "Transferring client project files using rsync"
-      rsync -avz --delete --exclude 'node_modules' --exclude '.env' ${{ github.workspace }}/remi_server/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$DROPLET_REMI_SERVER_PATH/
+      run: |
+        echo "Adding remote host key"
+        ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+        echo "Transferring client project files using rsync"
+        rsync -avz --delete --exclude 'node_modules' --exclude '.env' ${{ github.workspace }}/remi_server/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$DROPLET_REMI_SERVER_PATH/
 
     - name: Deploy and restart server
       uses: appleboy/ssh-action@master
