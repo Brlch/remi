@@ -8,13 +8,24 @@ function SelectEntityComponent() {
   const navigate = useNavigate();
 
   // Declare a new state variable, which we'll call "count"
+  const [isLoading, setIsLoading] = useState(true);
+  const [proyEnabled, setProyEnabled] = useState(false);
   const [path, setPath] = useState([]);
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    getRemiPath(path,setData);
+    setIsLoading(true);
+    getRemiPath(path, setData, setIsLoading);
+
+
   }, [path]);
 
+  useEffect(() => {
+    if ((path.at(-1) ?? "").includes("_Btn") && (data.buttons ?? []).filter(x => x.id === "ctl00_CPH1_BtnProdProy").length )
+      setProyEnabled(true);
+    else
+      setProyEnabled(false);
+  }, [data]);
   const addToPath = (addedPath) => {
     setPath([...path, addedPath]);
   };
@@ -23,13 +34,10 @@ function SelectEntityComponent() {
     navigate('/report', { state: { path: [...path, entityPath] } });
   };
 
-  useEffect(() => {
-    console.log("Latest data", data);
-  }, [data]);
-
   return (
     <>
-      {data && <ResultsComponent data={data} action={addToPath} path={path} select={selectEntity}></ResultsComponent>}
+      <>{isLoading && <div>Cargando...</div>}</>
+      {(!isLoading && data) && <ResultsComponent data={data} action={addToPath} path={path} select={selectEntity} enabledProy={proyEnabled} buttonsVisible={true}></ResultsComponent>}
     </>
   );
 }

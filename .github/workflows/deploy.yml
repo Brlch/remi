@@ -20,14 +20,30 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd $LOCAL_REMI_CLIENT_PATH && npm install
-        cd $LOCAL_REMI_SERVER_PATH && npm install
+        ls
+        echo "Current directory: $(pwd)"
+        echo "$GITHUB_WORKSPACE"
+        cd $GITHUB_WORKSPACE/$LOCAL_REMI_CLIENT_PATH && npm install
+        cd $GITHUB_WORKSPACE/$LOCAL_REMI_SERVER_PATH && npm install
 
     - name: Build client project
       run: |
-        cd $REMI_CLIENT_PATH && npm run build
+        cd $GITHUB_WORKSPACE/$LOCAL_REMI_CLIENT_PATH && npm run build
 
-    - name: Restart server
+    - name: Create PM2 instances if not exist
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          if ! pm2 describe remi_client >/dev/null 2>&1; then
+            pm2 start $DROPLET_REMI_CLIENT_PATH --name remi_client
+          fi
+          if ! pm2 describe remi_server >/dev/null 2>&1; then
+            cd $DROPLET_REMI_SERVER_PATH && pm2 start bin/www --name remi_server
+          fi
+    - name: Deploy and restart server
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.SSH_HOST }}
@@ -35,15 +51,16 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           pm2 stop remi_server || true
-          rm -rf $DROPLET_REMI_SERVER_PATH/*
-          cp -r $GITHUB_WORKSPACE/remi_server/* $DROPLET_REMI_SERVER_PATH/
-          cd $DROPLET_REMI_SERVER_PATH && pm2 start app.js
+          rsync -avz --delete --exclude '.env' --exclude 'node_modules' $GITHUB_WORKSPACE/remi_server/ $DROPLET_REMI_SERVER_PATH/
+          cd $DROPLET_REMI_SERVER_PATH && npm install && pm2 start bin/www --name remi_server
 
-    - name: Deploy client project
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: $GITHUB_WORKSPACE/remi_client/build/
-        target: $DROPLET_REMI_CLIENT_PATH/public/
+#    - name: Deploy client project
+#      uses: appleboy/scp-action@master
+#      with:
+#        host: ${{ secrets.SSH_HOST }}
+#        username: ${{ secrets.SSH_USER }}
+#        key: ${{ secrets.SSH_PRIVATE_KEY }}
+#        source: $GITHUB_WORKSPACE/remi_client/build/
+#        target: $DROPLET_REMI_CLIENT_PATH/public/
+
+

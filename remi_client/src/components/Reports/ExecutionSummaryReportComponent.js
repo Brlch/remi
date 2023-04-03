@@ -6,13 +6,19 @@ function ExecutionSummaryReportComponent({ data }) {
 
     if (!data || data.length === 0) return null;
 
-    const item = data[0];
+    console.log(data);
+    console.log(data.rows.reduce((a, b) => { console.log("a",a,"b.devn",b.devn);return a + b.devn }, 0));
+    console.log(data.rows.reduce((a, b) => { return a + b.pim }, 0));
+    const allItemSummary = {
+        devn: data.rows.reduce((a, b) => a + b.devn, 0),
+        pim: data.rows.reduce((a, b) => a + b.pim, 0)
+    };
 
     //Chart variables
     const COLORS = ['#0088FE', '#00C49F'];
     const chartData = [
-        { name: 'Monto ejecutado', value: item.devn },
-        { name: 'Monto por ejecutar', value: item.pim - item.devn }
+        { name: 'Monto ejecutado', value: allItemSummary.devn },
+        { name: 'Monto por ejecutar', value: allItemSummary.pim - allItemSummary.devn }
     ];
     const total = chartData.reduce((sum, entry) => sum + entry.value, 0);
 
@@ -27,17 +33,17 @@ function ExecutionSummaryReportComponent({ data }) {
                 <tbody>
                     <tr>
                         <td>Monto ejecutado</td>
-                        <td>{item.devn.toLocaleString()}</td>
+                        <td>{allItemSummary.devn.toLocaleString()}</td>
                     </tr>
                     <tr>
                         <td>Monto por ejecutar</td>
-                        <td>{(item.pim - item.devn).toLocaleString()}</td>
+                        <td>{(allItemSummary.pim - allItemSummary.devn).toLocaleString()}</td>
                     </tr>
                 </tbody>
             </table>
 
             <div style={{ textAlign: "center" }} width={"100%"}>
-                <PieChart width={600} height={400} style={{margin:"auto"}}>
+                <PieChart width={600} height={400} style={{ margin: "auto" }}>
                     <Legend verticalAlign="top" height={36} />
                     <Pie
                         dataKey="value"
