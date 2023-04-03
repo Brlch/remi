@@ -47,9 +47,16 @@ jobs:
     #      rsync -avz --delete --exclude '.env' --exclude 'node_modules' $GITHUB_WORKSPACE/remi_server/ $DROPLET_REMI_SERVER_PATH/
     #      cd $DROPLET_REMI_SERVER_PATH && npm install && pm2 start bin/www --name remi_server
 
+    - name: Install SSH Key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+    
     - name: Rsync client project
       run: |
         echo "Adding remote host key"
+        echo "Listing contents of source directory:"
+        ls -la /home/runner
         ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
         echo "Transferring client project files using rsync"
         rsync -avz --delete --exclude 'node_modules' --exclude '.env' ${{ github.workspace }}/remi_client/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$DROPLET_REMI_CLIENT_PATH/
