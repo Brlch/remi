@@ -70,5 +70,5 @@ jobs:
         script: |
           echo "GITHUB_WORKSPACE: ${{ github.workspace }}"
           echo "DROPLET_REMI_CLIENT_PATH: $DROPLET_REMI_CLIENT_PATH"
-          rsync -avz --delete --exclude 'node_modules' --exclude '.env' ${{ github.workspace }}/remi_client/ $DROPLET_REMI_CLIENT_PATH/
+          rsync -avz --delete --exclude 'node_modules' --exclude '.env' ${{ github.workspace }}/remi_client $DROPLET_REMI_CLIENT_PATH/
           cd $DROPLET_REMI_CLIENT_PATH && npm install && npm run build
