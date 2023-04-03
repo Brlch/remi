@@ -69,10 +69,11 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        envs: DROPLET_REMI_CLIENT_PATH
+        envs: GITHUB_WORKSPACE, DROPLET_REMI_CLIENT_PATH
         DROPLET_REMI_CLIENT_PATH: /var/www/remi.gobconsult.com/remi_client
         script: |
-          echo "GITHUB_WORKSPACE: ${{ github.workspace }}"
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
           echo "DROPLET_REMI_CLIENT_PATH: $DROPLET_REMI_CLIENT_PATH"
-          rsync -avz --delete --exclude 'node_modules' --exclude '.env' ${{ github.workspace }}/remi_client $DROPLET_REMI_CLIENT_PATH/
+          rsync -avz --delete --exclude 'node_modules' --exclude '.env' $GITHUB_WORKSPACE/remi_client/ $DROPLET_REMI_CLIENT_PATH/
           cd $DROPLET_REMI_CLIENT_PATH && npm install && npm run build
+
