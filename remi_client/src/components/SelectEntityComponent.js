@@ -25,7 +25,7 @@ function SelectEntityComponent() {
       setProyEnabled(true);
     else
       setProyEnabled(false);
-  }, [data]);
+  }, [path,data]);
   const addToPath = (addedPath) => {
     setPath([...path, addedPath]);
   };
