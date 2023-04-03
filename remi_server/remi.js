@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer');
 
 async function startRemi(optionsPath = []) {
   const browser = await puppeteer.launch({
-   // args: ['--no-sandbox'],
+    args: ['--no-sandbox'],
     timeout: 10000,
   });
   const page = await browser.newPage();
