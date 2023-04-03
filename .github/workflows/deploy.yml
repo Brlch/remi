@@ -53,10 +53,13 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
+        envs: DROPLET_REMI_SERVER_PATH
+        DROPLET_REMI_SERVER_PATH: /var/www/remi.gobconsult.com/remi_server
         script: |
           pm2 stop remi_server || true
           rsync -avz --delete --exclude '.env' --exclude 'node_modules' $GITHUB_WORKSPACE/remi_server/ $DROPLET_REMI_SERVER_PATH/
           cd $DROPLET_REMI_SERVER_PATH && npm install && pm2 start bin/www --name remi_server
+
 
 #    - name: Deploy client project
 #      uses: appleboy/scp-action@master
