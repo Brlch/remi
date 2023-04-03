@@ -49,6 +49,9 @@ jobs:
 
     - name: Rsync client project
       run: |
+        echo "Adding remote host key"
+        ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+        echo "Transferring client project files using rsync"
         rsync -avz --delete --exclude 'node_modules' --exclude '.env' ${{ github.workspace }}/remi_client/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$DROPLET_REMI_CLIENT_PATH/
 
     - name: Deploy and build client project
