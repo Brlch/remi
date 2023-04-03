@@ -46,7 +46,6 @@ jobs:
             pm2 start --name remi_server --interpreter node $SERVER_BIN_PATH
           fi
 
-
     - name: Deploy and restart server
       uses: appleboy/ssh-action@master
       with:
@@ -59,6 +58,7 @@ jobs:
           pm2 stop remi_server || true
           rsync -avz --delete --exclude '.env' --exclude 'node_modules' $GITHUB_WORKSPACE/remi_server/ $DROPLET_REMI_SERVER_PATH/
           cd $DROPLET_REMI_SERVER_PATH && npm install && pm2 start bin/www --name remi_server
+
     - name: Deploy and build client project
       uses: appleboy/ssh-action@master
       with:
@@ -68,5 +68,8 @@ jobs:
         envs: DROPLET_REMI_CLIENT_PATH
         DROPLET_REMI_CLIENT_PATH: /var/www/remi.gobconsult.com/remi_client
         script: |
+          echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
+          echo "DROPLET_REMI_CLIENT_PATH: $DROPLET_REMI_CLIENT_PATH"
           rsync -avz --delete --exclude 'node_modules' --exclude '.env' $GITHUB_WORKSPACE/remi_client/ $DROPLET_REMI_CLIENT_PATH/
           cd $DROPLET_REMI_CLIENT_PATH && npm install && npm run build
+
