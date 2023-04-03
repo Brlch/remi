@@ -2,7 +2,7 @@ name: Deploy projects to Digital Ocean
 
 on:
   push:
-    branches: [main]
+    branches: [main,development]
 
 env:  
   LOCAL_REMI_CLIENT_PATH: remi_client

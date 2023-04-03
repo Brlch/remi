@@ -88,7 +88,7 @@ function ResultsTableComponent({ data, action, enabled, select, enabledProy, but
 
 function ResultsButtonsComponent({ data, action, enabled, buttonsVisible }) {
 
-  return (!data || !buttonsVisible) ? <></> : (
+  return (!data || !buttonsVisible || !enabled) ? <></> : (
     <div className="d-flex justify-content-between">
       {data.map(item => (
         <Button key={item.id} onClick={() => action(item.id)} disabled={!enabled}>{item.text}</Button>
