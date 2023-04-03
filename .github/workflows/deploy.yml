@@ -2,7 +2,7 @@ name: Deploy projects to Digital Ocean
 
 on:
   push:
-    branches: [main,development]
+    branches: [main]
 
 env:  
   LOCAL_REMI_CLIENT_PATH: remi_client
@@ -70,15 +70,3 @@ jobs:
         script: |
           rsync -avz --delete --exclude 'node_modules' --exclude '.env' $GITHUB_WORKSPACE/remi_client/ $DROPLET_REMI_CLIENT_PATH/
           cd $DROPLET_REMI_CLIENT_PATH && npm install && npm run build
-
-
-#    - name: Deploy client project
-#      uses: appleboy/scp-action@master
-#      with:
-#        host: ${{ secrets.SSH_HOST }}
-#        username: ${{ secrets.SSH_USER }}
-#        key: ${{ secrets.SSH_PRIVATE_KEY }}
-#        source: $GITHUB_WORKSPACE/remi_client/build/
-#        target: $DROPLET_REMI_CLIENT_PATH/public/
-
-
