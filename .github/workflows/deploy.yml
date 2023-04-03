@@ -37,9 +37,13 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
+          echo "DROPLET_REMI_SERVER_PATH: $DROPLET_REMI_SERVER_PATH"
+          SERVER_BIN_PATH=$DROPLET_REMI_SERVER_PATH/bin/www
+          echo "SERVER_BIN_PATH: $SERVER_BIN_PATH"
           if ! pm2 describe remi_server >/dev/null 2>&1; then
-            pm2 start --name remi_server --interpreter node {{ env.DROPLET_REMI_SERVER_PATH }}/bin/www
+            pm2 start --name remi_server --interpreter node $SERVER_BIN_PATH
           fi
+
     - name: Deploy and restart server
       uses: appleboy/ssh-action@master
       with:
