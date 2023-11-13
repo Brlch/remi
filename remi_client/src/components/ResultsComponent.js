@@ -3,7 +3,7 @@ import { Button } from 'reactstrap';
 import '../styles/css/styles.css'; // Import the CSS file
 import { toFormat } from '../utils/RemiConsumer';
 
-function ResultsComponent({ data, action, path, select, enabledProy, buttonsVisible,label }) {
+function ResultsComponent({ data, action, path, select, enabledProy, buttonsVisible, label }) {
 
   const [tableRows, setTableRows] = useState([]);
   const [tableButtons, setTableButtons] = useState([]);
@@ -43,14 +43,14 @@ function ResultsComponent({ data, action, path, select, enabledProy, buttonsVisi
   );
 }
 
-function ResultsTableComponent({ data, action, enabled, select, enabledProy, buttonsVisible,label }) {
+function ResultsTableComponent({ data, action, enabled, select, enabledProy, buttonsVisible, label }) {
 
   return !data ? <></> : (
     <div>
       <table className='table table-hover table-stripped'>
         <thead>
           <tr>
-            <th>{(buttonsVisible?"Opción":label)}</th>
+            <th>{(buttonsVisible ? "Opción" : label)}</th>
             <th>PIA</th>
             <th>PIM</th>
             <th>Certificación</th>
@@ -63,6 +63,10 @@ function ResultsTableComponent({ data, action, enabled, select, enabledProy, but
           </tr>
         </thead>
         <tbody>
+          {buttonsVisible &&
+            (<tr>
+              <td onClick={() => action("ALL")} colSpan={10} style={{textAlign:"center",cursor:"pointer"}}> -- Select ALL -- </td>
+            </tr>)} 
           {data.map(item => (
             <tr key={item.name} onClick={() => action(item.name)} disabled={(!enabled && buttonsVisible)} className={(enabled || !buttonsVisible) ? "table-row-enabled" : "table-row-disabled"}>
               <td>{item.name}</td>

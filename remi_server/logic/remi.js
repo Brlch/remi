@@ -1,15 +1,18 @@
 
 const puppeteer = require('puppeteer');
 
-async function startRemi(optionsPath = []) {
+const ALL = "ALL";
+
+async function processPath(optionsPath = [], scope = "Proyecto") {
   const browser = await puppeteer.launch({
     args: ['--no-sandbox'],
     timeout: 10000,
+    headless: true
   });
   const page = await browser.newPage();
 
   //Initialize CA("Consulta amigable") page
-  await page.goto('https://apps5.mineco.gob.pe/transparencia/Navegador/default.aspx?y=2023&ap=Proyecto');
+  await page.goto('https://apps5.mineco.gob.pe/transparencia/Navegador/default.aspx?y=2023&ap=' + scope);
   await page.setViewport({ width: 1080, height: 1024 });
 
   //Get the iframe CA uses for internal data
@@ -35,7 +38,11 @@ async function startRemi(optionsPath = []) {
       promises.push(getNewFrame(page, frame).then(newFrame => frame = newFrame));
     } else {
       table = await GetDataResults(frame);
-      const row = table.rows.find(x => x.name == element);
+      let row = null;
+      if (element === ALL)
+        row = table.rows[0];
+      else
+        row = table.rows.find(x => x.name == element);
 
       // select path
       promises.push(waitAndClick(frame, `#${row.id} > input[type=radio]`));
@@ -46,7 +53,7 @@ async function startRemi(optionsPath = []) {
   // wait for all steps to execute
   await Promise.all(promises);
 
-  screenshot(page, "afterAll");
+  // screenshot(page, "afterAll");
   // close browser and return the options
   table = await GetDataResults(frame);
   await browser.close();
@@ -132,5 +139,6 @@ class TableResult {
   get options() {
     return this.rows.map(function (v) { return v.name; });
   }
+
 }
-module.exports = { startRemi };
+module.exports = { processPath };
