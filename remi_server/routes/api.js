@@ -1,7 +1,8 @@
 var express = require("express");
 var router = express.Router();
 const remi = require("../logic/remi.js");
-const { getCSV, updateQueryTree } = require("../logic/webScraperQueryTree.js"); // Replace 'yourModule' with the actual module name
+const { getCSV, updateQueryTree, peekQueryTree } = require("../logic/webScraperQueryTree.js"); // Replace 'yourModule' with the actual module name
+
 
 router.get("/", async function(req, res, next) {
     console.log(`Path ${req.query.path} was requested...`);
@@ -12,9 +13,21 @@ router.get("/", async function(req, res, next) {
 
 router.get("/update", async function(req, res) {
     console.log(`Updating Query Tree for Path ${req.query.path}...`);
+    console.log("SCOPE YEAR"+req.query.scope+ req.query.year);
     try {
-        await updateQueryTree(req.query.path,req.query.scope);
+        await updateQueryTree(req.query.path,req.query.scope, req.query.year);
         res.send("Query Tree updated successfully.");
+    } catch (error) {
+        console.error('Error during query tree update:', error);
+        res.status(500).send('Error updating Query Tree');
+    }
+});
+
+router.get("/peek", async function(req, res) {
+    console.log(`Updating Query Tree for Path ${req.query.path}...`);
+    try {
+        const result = await peekQueryTree(req.query.path, req.query.scope, req.query.year);
+        res.json({ message: "Query Tree updated successfully.", result: result });
     } catch (error) {
         console.error('Error during query tree update:', error);
         res.status(500).send('Error updating Query Tree');
@@ -23,7 +36,7 @@ router.get("/update", async function(req, res) {
 
 router.get("/csv", async function(req, res, next) {
     console.log(`CSV for Path ${req.query.path} was requested...`);
-    const csv = await getCSV(req.query.path,req.query.scope);
+    const csv = await getCSV(req.query.path,req.query.scope, req.query.year);
 
     if (csv) {
         res.setHeader('Content-Type', 'text/csv');

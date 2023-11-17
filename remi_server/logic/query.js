@@ -109,7 +109,7 @@ class Query {
         });
 
         // Prepend the headers row to the rows
-        return [headers.join(','),...rows].join('\n');
+        return [headers.join(','), ...rows].join('\n');
     }
 
     collectLeafData(rows) {
@@ -161,6 +161,9 @@ class Query {
         return leafNodes;
     }
 
+    findAllLeafNodes() {
+        return this.findLeafNodes(query => true);
+    }
     findDataLeafNodes() {
         return this.findLeafNodes(query => query.data !== undefined);
     }
@@ -171,8 +174,8 @@ class Query {
 
 
 
-    static load(name,scope) {
-        const dir = path.join(__dirname, '../queries', scope);
+    static load(name, scope, year) {
+        const dir = path.join(__dirname, '../queries', scope, year);
         try {
             const hash = crypto.createHash('sha256').update(name).digest('hex');
             const filePath = path.join(dir, `${hash}.json`);
@@ -194,8 +197,8 @@ class Query {
     }
 
 
-    save(scope) {
-        const dir = path.join(__dirname, '../queries', scope);
+    save(scope,year) {
+        const dir = path.join(__dirname, '../queries', scope, year);
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir);
         }

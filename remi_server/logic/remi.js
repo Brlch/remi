@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer');
 
 const ALL = "ALL";
 
-async function processPath(optionsPath = [], scope = "Proyecto") {
+async function processPath(optionsPath = [], scope = "Proyecto", year = "2023") {
   const browser = await puppeteer.launch({
     args: ['--no-sandbox'],
     timeout: 10000,
@@ -12,7 +12,7 @@ async function processPath(optionsPath = [], scope = "Proyecto") {
   const page = await browser.newPage();
 
   //Initialize CA("Consulta amigable") page
-  await page.goto('https://apps5.mineco.gob.pe/transparencia/Navegador/default.aspx?y=2023&ap=' + scope);
+  await page.goto('https://apps5.mineco.gob.pe/transparencia/Navegador/default.aspx?y='+ year + '&ap=' + scope);
   await page.setViewport({ width: 1080, height: 1024 });
 
   //Get the iframe CA uses for internal data

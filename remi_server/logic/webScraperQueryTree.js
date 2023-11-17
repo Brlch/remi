@@ -1,7 +1,7 @@
 const { Query } = require('./query.js');
 const remi = require("./remi.js")
 
-async function buildQueryTree(fullPath, executeScraper, parentQuery = null) {
+async function buildQueryTree(fullPath, executeScraper, parentQuery = null,scope,year) {
     // Base case: if the path is empty, return null
     //console.log(fullPath);
     if (fullPath === "") {
@@ -14,12 +14,12 @@ async function buildQueryTree(fullPath, executeScraper, parentQuery = null) {
 
     if (currentSegment === 'ALL') {
         // If the current segment is 'ALL', run the scraper to get all options
-        const options = await executeScraper(parentQuery); // Use parentQuery here
+        const options = await executeScraper(parentQuery,scope,year); // Use parentQuery here
         let childQueries = [];
 
         for (const option of options) {
             // For each option, build the subtree
-            const childQuery = await buildQueryTree(`${option}/${remainingPath}`, executeScraper, parentQuery);
+            const childQuery = await buildQueryTree(`${option}/${remainingPath}`, executeScraper, parentQuery,scope,year);
             if (childQuery) {
                 // If the childQuery is an array, spread it into the childQueries array
                 if (Array.isArray(childQuery)) {
@@ -36,7 +36,7 @@ async function buildQueryTree(fullPath, executeScraper, parentQuery = null) {
         let currentQuery = new Query(fullPath, null, null, parentQuery);
 
         // Recursively build the tree for the remaining path
-        const childQuery = await buildQueryTree(remainingPath, executeScraper, currentQuery);
+        const childQuery = await buildQueryTree(remainingPath, executeScraper, currentQuery,scope,year);
         if (childQuery) {
             // If the childQuery is an array, add each element as a subquery
             if (Array.isArray(childQuery)) {
@@ -56,51 +56,56 @@ async function buildQueryTree(fullPath, executeScraper, parentQuery = null) {
 
 
 // This function is a placeholder for your web scraping function.
-async function executeScraper(node) {
+async function executeScraper(node,scope,year) {
 
-    let data = await remi.processPath(node.getParentSteps())
+    let data = await remi.processPath(node.getParentSteps(),scope,year)
     //console.log(data.options);
     return data.options;
 }
 
 
-// Self-invoking async function to test
-async function updateQueryTree(path,scope) {
-    let queryTree = Query.load(path,scope);
+async function updateQueryTree(path,scope,year) {
+    let queryTree = Query.load(path,scope,year);
 
     if (queryTree == null) {
-        queryTree = await buildQueryTree(path, executeScraper);
-        queryTree.save(scope);
+        queryTree = await buildQueryTree(path, executeScraper, null,scope,year);
+        queryTree.save(scope,year);
     }
-
-    /*function printQueryTree(query, depth = 0) {
-        if (!query) return;
-        console.log(' '.repeat(depth * 2) + query.name);
-        query.subqueries.forEach(subquery => printQueryTree(subquery, depth + 1));
-    }*/
-
-    //printQueryTree(queryTree);
 
     let pendingNodes = queryTree.findFalsyDataLeafNodes();
     
     for (const node of pendingNodes) {
         let steps = node.getParentSteps();
-        let data = await remi.processPath(steps);
+        let data = await remi.processPath(steps,scope,year);
         node.data = data;
         node.lastUpdated = new Date();
-        queryTree.save(scope);
+        queryTree.save(scope,year);
     }
 }
 
-async function getCSV(path,scope){
-    let queryTree = Query.load(path,scope);
+async function peekQueryTree(path, scope, year) {
+    let queryTree = Query.load(path, scope, year);
+
+    if (!queryTree) {
+        queryTree = await buildQueryTree(path, executeScraper, null, scope, year);
+        queryTree.save(scope, year);
+    }
+
+    const pendingNodes = queryTree.findFalsyDataLeafNodes();
+    const leafNodes = queryTree.findAllLeafNodes(); 
+
+    return { pending: pendingNodes.length, total: leafNodes.length }; 
+}
+
+async function getCSV(path,scope,year){
+    let queryTree = Query.load(path,scope,year);
     if(queryTree){
         return queryTree.buildCSV();
     }
     return "";
 }
 
-module.exports = { updateQueryTree , getCSV};
+module.exports = { updateQueryTree , getCSV, peekQueryTree};
 
 /* TESTS
 //const testPath = 'A/B/ALL/C';

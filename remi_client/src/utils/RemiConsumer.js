@@ -1,11 +1,11 @@
 import { API_BASE_URL } from '../config/constants';
 
 // Get information from REMI server
-export function getRemiPath(path, scope, setterFunction, setLoading) {
+export function getRemiPath(path, scope, year, setterFunction, setLoading) {
   path = path ?? [];
   if (setLoading)
     setLoading(true);
-  fetch(`${API_BASE_URL}?path=${path.join('/')}&scope=${scope}`)
+  fetch(`${API_BASE_URL}?path=${path.join('/')}&scope=${scope}&year=${year}`)
     .then(response => response.json())
     .then(data => {
       if (data && data.rows) {
@@ -20,14 +20,31 @@ export function getRemiPath(path, scope, setterFunction, setLoading) {
 }
 
 // Function to update the query tree on the server
-export function updateQueryTree(path,scope) {
-  fetch(`${API_BASE_URL}/update?path=${path.join('/')}&scope=${scope}`);
+export function updateQueryTree(path,scope, year) {
+  fetch(`${API_BASE_URL}/update?path=${path.join('/')}&scope=${scope}&year=${year}`);
+}
+
+// Function to update the query tree on the server and return progress
+export function peekProgress(path, scope, year) {
+  return fetch(`${API_BASE_URL}/peek?path=${path.join('/')}&scope=${scope}&year=${year}`)
+    .then(response => {
+      console.log(response);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => data)
+    .catch(error => {
+      console.error('Error in peekProgress:', error);
+      throw error;
+    });
 }
 
 // Function to get CSV data from the server
-export function getCSV(path, scope) {
+export function getCSV(path, scope, year) {
   return new Promise((resolve, reject) => {
-    fetch(`${API_BASE_URL}/csv?path=${encodeURIComponent(path.join('/'))}&scope=${encodeURIComponent(scope)}`)
+    fetch(`${API_BASE_URL}/csv?path=${encodeURIComponent(path.join('/'))}&scope=${encodeURIComponent(scope)}&year=${year}`)
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
