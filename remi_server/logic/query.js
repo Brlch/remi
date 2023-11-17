@@ -200,7 +200,7 @@ class Query {
     save(scope,year) {
         const dir = path.join(__dirname, '../queries', scope, year);
         if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
+            fs.mkdirSync(dir, { recursive: true });
         }
         try {
             const hash = crypto.createHash('sha256').update(this.name).digest('hex');
