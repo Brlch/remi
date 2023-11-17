@@ -12,7 +12,11 @@ async function processPath(optionsPath = [], scope = "Proyecto", year = "2023") 
   const page = await browser.newPage();
 
   //Initialize CA("Consulta amigable") page
-  await page.goto('https://apps5.mineco.gob.pe/transparencia/Navegador/default.aspx?y='+ year + '&ap=' + scope);
+  //await page.goto('https://apps5.mineco.gob.pe/transparencia/Navegador/default.aspx?y='+ year + '&ap=' + scope);
+  await page.goto('https://apps5.mineco.gob.pe/transparencia/mensual/default.aspx?y='+ year + '&ap=' + scope);
+
+
+  https://apps5.mineco.gob.pe/transparencia/mensual/default.aspx?y=2022&ap=Proyecto
   await page.setViewport({ width: 1080, height: 1024 });
 
   //Get the iframe CA uses for internal data
