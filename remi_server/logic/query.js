@@ -12,7 +12,7 @@ class Query {
         this.parent = parent;
     }
     getCurrentStep() {
-        const steps = this.name.split(/[\/,]+/).filter(i => i)
+        const steps = this.name.split(/[\/]+/).filter(i => i)
         return steps && steps.length ? steps[0] : "";
     }
 

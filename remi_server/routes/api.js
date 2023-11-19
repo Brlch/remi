@@ -7,7 +7,7 @@ const { getCSV, updateQueryTree, peekQueryTree , getExistingQueriesInfo} = requi
 router.get("/", async function(req, res, next) {
     console.log(`Path ${req.query.path} was requested...`);
     console.log(`Scope ${req.query.scope}`);
-    const table = await remi.processPath((req.query.path ?? "").split(/[\/,]+/).filter(i => i), req.query.scope);
+    const table = await remi.processPath((req.query.path ?? "").split(/[\/]+/).filter(i => i), req.query.scope);
     res.json(table);
 });
 

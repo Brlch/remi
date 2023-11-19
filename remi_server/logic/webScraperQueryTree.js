@@ -8,7 +8,7 @@ async function buildQueryTree(fullPath, executeScraper, parentQuery = null,scope
         return [];
     }
 
-    const segments = fullPath.split(/[\/,]+/).filter(i => i);
+    const segments = fullPath.split(/[\/]+/).filter(i => i);
     const currentSegment = segments[0];
     const remainingPath = segments.slice(1).join('/');
 
