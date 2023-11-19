@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import ResultsComponent from './ResultsComponent';
-import { useNavigate } from 'react-router-dom';
-import { getRemiPath, updateQueryTree, getCSV, peekProgress } from '../utils/RemiConsumer'; // Import the new functions
+import { useNavigate, useLocation } from 'react-router-dom';
+import { getRemiPath, updateQueryTree, getCSV, peekProgress } from '../utils/RemiConsumer';
 import PathDisplayComponent from './PathDisplayComponent';
 import styles from './SelectEntity.module.css';
 
 function SelectEntityComponent() {
   const navigate = useNavigate();
+  const location = useLocation(); 
   const [isLoading, setIsLoading] = useState(true);
   const [proyEnabled, setProyEnabled] = useState(false);
   const [path, setPath] = useState([]);
@@ -20,6 +21,16 @@ function SelectEntityComponent() {
     setIsLoading(true);
     getRemiPath(path, scope, year, setData, setIsLoading);
   }, [path, scope, year]);
+
+  useEffect(() => {
+    console.log("location?");
+    console.log(location);
+    console.log(location.state);
+    // Check if the navigation state has the path and initialize component state
+    if (location.state && location.state.path) {
+      setPath(location.state.path);
+    }
+  }, [location]);
 
   useEffect(() => {
     if ((path.at(-1) ?? "").includes("_Btn") && (data.buttons ?? []).filter(x => x.id === "ctl00_CPH1_BtnProdProy").length)

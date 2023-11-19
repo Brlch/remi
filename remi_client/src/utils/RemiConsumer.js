@@ -65,6 +65,22 @@ export function getCSV(path, scope, year) {
   });
 }
 
+// Function to get information about existing queries from the server
+export function getExistingQueriesInfo() {
+  return fetch(`${API_BASE_URL}/existing-queries`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      console.log(response);
+      return response.json();
+    })
+    .then(data => data)
+    .catch(error => {
+      console.error('Error fetching existing queries info:', error);
+      throw error;
+    });
+}
 
 function convertPropsToNumbers(arr) {
   return arr.map((obj) => {

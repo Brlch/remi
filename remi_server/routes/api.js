@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const remi = require("../logic/remi.js");
-const { getCSV, updateQueryTree, peekQueryTree } = require("../logic/webScraperQueryTree.js"); // Replace 'yourModule' with the actual module name
+const { getCSV, updateQueryTree, peekQueryTree , getExistingQueriesInfo} = require("../logic/webScraperQueryTree.js"); // Replace 'yourModule' with the actual module name
 
 
 router.get("/", async function(req, res, next) {
@@ -44,6 +44,18 @@ router.get("/csv", async function(req, res, next) {
         res.send(csv);
     } else {
         res.status(404).send('CSV could not be generated');
+    }
+});
+
+router.get("/existing-queries", async function(req, res) {
+    console.log(`Fetching existing queries`);
+    try {
+        const existingQueriesInfo = await getExistingQueriesInfo();
+        console.log("Existing:",existingQueriesInfo);
+        res.json(existingQueriesInfo);
+    } catch (error) {
+        console.error('Error during fetching existing queries:', error);
+        res.status(500).send('Error fetching existing queries');
     }
 });
 

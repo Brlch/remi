@@ -12,6 +12,7 @@ function NavMenu() {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className='ms-auto'>
             <NavLink className="text-dark nav-link" to="/">Select Entity</NavLink>
+            <NavLink className="text-dark nav-link" to="/queries">Existing queries</NavLink>
           </Nav>
         </Navbar.Collapse>
       </Container>

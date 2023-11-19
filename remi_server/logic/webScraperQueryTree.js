@@ -105,7 +105,10 @@ async function getCSV(path,scope,year){
     return "";
 }
 
-module.exports = { updateQueryTree , getCSV, peekQueryTree};
+async function getExistingQueriesInfo(){
+    return Query.getExistingQueriesInfo();
+}
+module.exports = { updateQueryTree , getCSV, peekQueryTree, getExistingQueriesInfo};
 
 /* TESTS
 //const testPath = 'A/B/ALL/C';

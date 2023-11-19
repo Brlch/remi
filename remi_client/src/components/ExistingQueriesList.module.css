@@ -1,0 +1,44 @@
+/* ExistingQueriesList.module.css */
+.existingQueries {
+    font-family: Arial, sans-serif;
+    color: #333;
+    margin: 20px;
+  }
+  
+  .loading {
+    text-align: center;
+  }
+  
+  .queryItem {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+    list-style-type: none;
+  }
+  
+  .queryName {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .queryUpdated {
+    color: #666;
+    font-size: 0.9em;
+  }
+  
+  .navigateButton {
+    background-color: #5C6BC0;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  

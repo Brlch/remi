@@ -172,13 +172,29 @@ class Query {
         return this.findLeafNodes(query => !query.data);
     }
 
+    static getDirPath(scope, year) {
+        const baseDir = path.join(__dirname, '../queries');
+        return scope && year ? path.join(baseDir, scope, year) : baseDir;
+    }
+    static generateHash(name) {
+        return crypto.createHash('sha256').update(name).digest('hex');
+    }
 
 
     static load(name, scope, year) {
-        const dir = path.join(__dirname, '../queries', scope, year);
+        let filePath;
+        
+        if (arguments.length === 1) {
+            // If only one argument is provided, assume it's the file name
+            filePath = name;
+        } else {
+            // Otherwise, use name, scope, and year to determine the file path
+            const dir = Query.getDirPath(scope, year);
+            const hash = Query.generateHash(name);
+            filePath = path.join(dir, `${hash}.json`);
+        }
+        
         try {
-            const hash = crypto.createHash('sha256').update(name).digest('hex');
-            const filePath = path.join(dir, `${hash}.json`);
             const data = fs.readFileSync(filePath, 'utf8');
             const queryObject = JSON.parse(data);
 
@@ -197,13 +213,13 @@ class Query {
     }
 
 
-    save(scope,year) {
-        const dir = path.join(__dirname, '../queries', scope, year);
+    save(scope, year) {
+        const dir = Query.getDirPath(scope, year);
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
         try {
-            const hash = crypto.createHash('sha256').update(this.name).digest('hex');
+            const hash = Query.generateHash(this.name);
             const filePath = path.join(dir, `${hash}.json`);
 
             const replacer = (key, value) => {
@@ -218,6 +234,51 @@ class Query {
         }
     }
 
+    static getExistingQueriesInfo() {
+        let queriesInfo = [];
+        const baseDir = Query.getDirPath();
+
+        // List all scope directories
+        const scopes = fs.readdirSync(baseDir).filter(item => {
+            const itemPath = path.join(baseDir, item);
+            return fs.statSync(itemPath).isDirectory();
+        });
+
+        // Iterate over each scope and list all years
+        scopes.forEach(scope => {
+            const scopeDir = path.join(baseDir, scope);
+            const years = fs.readdirSync(scopeDir).filter(item => {
+                const itemPath = path.join(scopeDir, item);
+                return fs.statSync(itemPath).isDirectory();
+            });
+
+            // Iterate over each year and read query files
+            years.forEach(year => {
+                const yearDir = path.join(scopeDir, year);
+                const files = fs.readdirSync(yearDir).filter(file => file.endsWith('.json'));
+
+                // Process each query file
+                files.forEach(file => {
+                    const filePath = path.join(yearDir, file);
+
+                    // Load the query if it is a root query
+                    const query = Query.load(filePath);
+                    if (query !== null && query.parent === null) {
+                        queriesInfo.push({
+                            scope: scope,
+                            year: year,
+                            originalRootPath: yearDir,
+                            originalRootName: query.name,
+                            originalPathName: query.path,
+                            lastUpdateTime: query.lastUpdated
+                        });
+                    }
+                });
+            });
+        });
+
+        return queriesInfo;
+    }
 }
 
 module.exports = { Query };
