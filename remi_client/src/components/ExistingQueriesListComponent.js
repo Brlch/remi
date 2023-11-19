@@ -26,9 +26,9 @@ const ExistingQueriesList = () => {
       });
   }, []);
 
-  const handleNavigate = (pathArray) => {
+  const handleNavigate = (pathArray, scope, year) => {
     // Assuming the SelectEntityComponent is reachable via '/select-entity' route
-    navigate('/', { state: { path: pathArray } });
+    navigate('/', { state: { path: pathArray, scope: scope, year: year } });
   };
 
   if (loading) {
@@ -47,7 +47,7 @@ const ExistingQueriesList = () => {
             <span className={styles.queryUpdated}>
               Last Updated: {new Date(query.lastUpdateTime).toLocaleString()}
             </span>
-            <button className={styles.navigateButton} onClick={() => handleNavigate(query.pathArray)}>
+            <button className={styles.navigateButton} onClick={() => handleNavigate(query.pathArray,query.scope,query.year)}>
               Navigate
             </button>
           </li>

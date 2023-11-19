@@ -29,6 +29,8 @@ function SelectEntityComponent() {
     // Check if the navigation state has the path and initialize component state
     if (location.state && location.state.path) {
       setPath(location.state.path);
+      setScope(location.state.scope);
+      setYear(location.state.year);
     }
   }, [location]);
 
